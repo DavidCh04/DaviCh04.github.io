@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lecturas 2026</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+    :root {
+      --bg: #d4e5d4;
+      --card: #ffffff;
+      --border: #b8cfb8;
+      --accent: #2d5c3f;
+      --text: #1f3329;
+      --muted: #5a7560;
+      --light: #7a9580;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 20px 80px;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 60px 20px 50px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 50px;
+    }
+    .header h1 {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 56px;
+      font-weight: 300;
+      color: var(--accent);
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .header .year {
+      font-size: 18px;
+      color: var(--muted);
+      font-weight: 400;
+      letter-spacing: 2px;
+    }
+    .header .stats {
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--light);
+    }
+
+    /* Filters */
+    .filters {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .filter-btn:hover {
+      background: var(--bg);
+    }
+
+    .filter-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .results-count {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 30px;
+    }
+
+    /* Book entry */
+    .book-entry {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 40px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: opacity 0.3s;
+    }
+
+    .book-entry.hidden {
+      display: none;
+    }
+
+    .book-header {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 30px;
+      padding: 30px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .book-cover {
+      width: 180px;
+      height: 270px;
+      object-fit: cover;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .book-info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .book-number {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+
+    .book-title {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .book-author {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .book-meta {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px 24px;
+      font-size: 13px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .meta-label {
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .meta-value {
+      color: var(--text);
+    }
+
+    /* Star rating */
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 18px;
+      color: #fbbf24;
+      margin-top: 8px;
+    }
+
+    .star {
+      position: relative;
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+    }
+
+    .star::before {
+      content: '☆';
+      position: absolute;
+      color: #d1d5db;
+    }
+
+    .star.full::before {
+      content: '★';
+      color: #fbbf24;
+    }
+
+    .star.half::before {
+      content: '★';
+      color: #fbbf24;
+      width: 45%;
+      overflow: hidden;
+      position: absolute;
+    }
+
+    .star.half::after {
+      content: '☆';
+      position: absolute;
+      color: #d1d5db;
+    }
+
+    .book-review {
+      padding: 30px;
+    }
+
+    .review-label {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .review-text {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .review-text p {
+      margin-bottom: 12px;
+    }
+
+    .review-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--light);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .book-header {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      .book-cover {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+        aspect-ratio: 2/3;
+        margin: 0 auto;
+      }
+      .book-title {
+        font-size: 26px;
+      }
+      .book-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      body { 
+        background: white; 
+        padding: 20px;
+      }
+      .book-entry {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Lecturas</h1>
+    <div class="year">2026</div>
+    <div class="stats">4 libros leídos hasta ahora</div>
+  </div>
+
+  <!-- FILTROS DE VALORACIÓN -->
+  <div class="filters">
+    <span class="filter-label">Filtrar por valoración</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="rating" data-value="all">Todas</button>
+      <button class="filter-btn" data-filter="rating" data-value="5">★★★★★</button>
+      <button class="filter-btn" data-filter="rating" data-value="4.5">★★★★½</button>
+      <button class="filter-btn" data-filter="rating" data-value="4">★★★★</button>
+      <button class="filter-btn" data-filter="rating" data-value="3.5">★★★½</button>
+      <button class="filter-btn" data-filter="rating" data-value="3">★★★</button>
+      <button class="filter-btn" data-filter="rating" data-value="2.5">★★½</button>
+      <button class="filter-btn" data-filter="rating" data-value="2">★★</button>
+      <button class="filter-btn" data-filter="rating" data-value="1.5">★½</button>
+      <button class="filter-btn" data-filter="rating" data-value="1">★</button>
+      <button class="filter-btn" data-filter="rating" data-value="0.5">½</button>
+    </div>
+  </div>
+
+  <!-- FILTROS DE AUTOR -->
+  <div class="filters">
+    <span class="filter-label">Filtrar por autor</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="author" data-value="all">Todos</button>
+      <button class="filter-btn" data-filter="author" data-value="Brandon Sanderson">Sanderson</button>
+      <button class="filter-btn" data-filter="author" data-value="J.D. Barker">Barker</button>
+      <button class="filter-btn" data-filter="author" data-value="Robin Hobb">Hobb</button>
+      <button class="filter-btn" data-filter="author" data-value="Adrian Tchaikovsky">Tchaikovsky</button>
+      <button class="filter-btn" data-filter="author" data-value="Robert Jordan">Jordan</button>
+    </div>
+  </div>
+
+  <!-- FILTROS DE GÉNERO -->
+  <div class="filters">
+    <span class="filter-label">Filtrar por género</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="genre" data-value="all">Todos</button>
+      <button class="filter-btn" data-filter="genre" data-value="Fantasía">Fantasía</button>
+      <button class="filter-btn" data-filter="genre" data-value="Thriller">Thriller</button>
+      <button class="filter-btn" data-filter="genre" data-value="Ciencia Ficción">Ciencia Ficción</button>
+    </div>
+  </div>
+
+  <div class="results-count">Mostrando <span id="count">4</span> de 4 libros</div>
+
+  <!-- LIBRO 1 -->
+  <div class="book-entry" data-rating="4.5" data-author="Brandon Sanderson" data-genre="Fantasía">
+    <div class="book-header">
+      <img src="portadas/libro1.jpg" alt="Portada" class="book-cover" alt="Portada" class="book-cover">
+      <div class="book-info-grid">
+        <div class="book-number">LIBRO #1</div>
+        <div>
+          <div class="book-title">Isla de la Ascua Oscura</div>
+          <div class="book-author">Brandon Sanderson</div>
+        </div>
+        <div class="book-meta">
+          <div class="meta-item">
+            <div class="meta-label">Traductor/a</div>
+            <div class="meta-value">Manu Viciano</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Editorial</div>
+            <div class="meta-value">Nova</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Año publicación</div>
+            <div class="meta-value">2025</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lectura</div>
+            <div class="meta-value">20 Noviembre 2025 – 4 enero 2026</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Valoración</div>
+          <div class="rating">
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star half"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="book-review">
+      <div class="review-label">Opinión</div>
+      <div class="review-text">
+        <p>Es el libro de Brandon que más he disfrutado desde seguramente El Ritmo de la Guerra. Me encanta Ocaso y como parece que todo vuelve un poco a sus inicios, cuando el Cosmere era más sencillo. Ha sido como reencontrarme con el Brandon que más me gusta y eso siempre es bien.</p>
+        <p>Toda la trama de Astrífera me gusta mucho también y deja conceptos importantes a nivel de Cosmere que serán importantes para entender lo que se viene. Ojalá tendiera más a este tipo de historias, pero es evidente que el Cosmere que plantea Brandon va por otros derroteros. Aún así, espero que siempre tenga hueco para este tipo de historias. Ocaso te quiero.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIBRO 2 -->
+  <div class="book-entry" data-rating="4" data-author="J.D. Barker" data-genre="Thriller">
+    <div class="book-header">
+      <img src="portadas/libro2.jpg" alt="Portada" class="book-cover">
+      <div class="book-info-grid">
+        <div class="book-number">LIBRO #2</div>
+        <div>
+          <div class="book-title">El Cuarto Mono</div>
+          <div class="book-author">J.D. Barker</div>
+        </div>
+        <div class="book-meta">
+          <div class="meta-item">
+            <div class="meta-label">Traductor/a</div>
+            <div class="meta-value">Julio Hermoso</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Editorial</div>
+            <div class="meta-value">Planeta</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Año publicación</div>
+            <div class="meta-value">2018 (ed. español)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lectura</div>
+            <div class="meta-value">6 enero – 12 enero 2026</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Valoración</div>
+          <div class="rating">
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="book-review">
+      <div class="review-label">Opinión</div>
+      <div class="review-text">
+        <p>De vez en cuando, entre libros enormes, sagas de fantasía gigantes, ciencia ficción enrevesada... Me gusta leer un buen thriller. Les suelo pedir poco: que me evada de conceptos y worldbuilding inmensos y me traiga la típica historia policiaca intentando atrapar a un asesino. Pues grata sorpresa: me ha gustado mucho. Sin duda, es de los thrillers que más me han gustado de los últimos que habré leído, sobretodo por los flashbacks del diario y por la profundidad que trata de darle a las motivaciones del asesino. Sin duda, toda su trama se roba la historia. Que bien entran este tipo de historias de vez en cuando, y más si está bien hecha.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIBRO 3 -->
+  <div class="book-entry" data-rating="5" data-author="Robin Hobb" data-genre="Fantasía">
+    <div class="book-header">
+      <img src="portadas/libro3.jpg" alt="Portada" class="book-cover">
+      <div class="book-info-grid">
+        <div class="book-number">LIBRO #3</div>
+        <div>
+          <div class="book-title">La Búsqueda del Asesino</div>
+          <div class="book-author">Robin Hobb</div>
+        </div>
+        <div class="book-meta">
+          <div class="meta-item">
+            <div class="meta-label">Traductor/a</div>
+            <div class="meta-value">Manuel de los Reyes</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Editorial</div>
+            <div class="meta-value">Nocturna</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Año publicación</div>
+            <div class="meta-value">2024 (ed. español Nocturna)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lectura</div>
+            <div class="meta-value">13 enero – 11 febrero 2026</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Valoración</div>
+          <div class="rating">
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star full"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="book-review">
+      <div class="review-label">Opinión</div>
+      <div class="review-text">
+        <p>El cierre de la trilogía del Vatídico me parece sublime y en la línea de los otros 2 libros que leí de la autora. El grado de introspección en este libro es alto y el desarrollo de sus personajes a mí me parece lo más realista que he tenido el gusto de leer en un libro. El desarrollo de Traspié aquí puede desesperar a más de uno pero párate a pensar en lo que ha pasado con él a lo largo de su vida, ¿Acaso tú actuarías diferente? Desde fuera es muy sencillo valorar que bien o mal actúa pero para mí lo dificil de escribir a un personaje es que tome decisiones que se sientan reales, no que satisfaga lo que presupones que debe hacer. Y en estos términos, en esta liga, Robin Hobb es dueña y señora. Bueno y el sistema mágico a mí me maravilla. La Maña me parece una idea tremenda y que se amolda perfectamente al estilo de desarrollo de la historia que plantea Hobb. Y Ojos de Noche. Ya está, no digo más. En fin, deseando seguir leyendo este universo y seguir disfrutando a una de mis autoras favoritas, sin duda alguna. </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIBRO 4 -->
+  <div class="book-entry" data-rating="3.5" data-author="Adrian Tchaikovsky" data-genre="Ciencia Ficción">
+    <div class="book-header">
+      <img src="portadas/libro4.jpg" alt="Portada" class="book-cover">
+      <div class="book-info-grid">
+        <div class="book-number">LIBRO #4</div>
+        <div>
+          <div class="book-title">Herederos del Tiempo</div>
+          <div class="book-author">Adrian Tchaikovsky</div>
+        </div>
+        <div class="book-meta">
+          <div class="meta-item">
+            <div class="meta-label">Traductor/a</div>
+            <div class="meta-value">Luis García Prado</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Editorial</div>
+            <div class="meta-value">Alamut</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Año publicación</div>
+            <div class="meta-value">2019 (ed. español)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lectura</div>
+            <div class="meta-value">11 febrero – 18 febrero 2026</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Valoración</div>
+          <div class="rating">
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star full"></span>
+            <span class="star half"></span>
+            <span class="star"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="book-review">
+      <div class="review-label">Opinión</div>
+      <div class="review-text">
+        <p>Es el primer libro que leo de Adrian Tchaikovsky y mi primera impresión es que me gusta... pero hasta ahí. Los primeros dos tercios del libro son irregulares, con tramos de narración que se hacen pesados con la esperanza de que lo que cuenta, que al final es de lo que va el libro, suene interesante e innovador. En algunos temas si que me ha parecido interesante lo que plantea, pero en otras ideas no, por lo que no ha terminado de convencerme. La trama del planeta de Kern me parece por mucho la más interesante de las dos, con un planteamiento bastante divertido. La trama de la Gilgamesh me ha parecido más aburrida. Muchas vueltas a lo mismo y un mensaje que queda claro cuando lo repites 2 o 3 veces, sin ser necesario repertirlo hasta la saciedad. El último tercio del libro me ha gustado bastante más y cierra el libro bastante bien y con ganas de leer su continuación que, eso sí, no va a suceder pronto.</p>
+      </div>
+    </div>
+  </div>
+
+<!-- LIBRO 5 -->
+  <div class="book-entry" data-rating="0" data-author="Robert Jordan" data-genre="Fantasía">
+    <div class="book-header">
+      <img src="portadas/libro5.jpg" alt="Portada" class="book-cover">
+      <div class="book-info-grid">
+        <div class="book-number">LIBRO #5</div>
+        <div>
+          <div class="book-title">El Ojo del Mundo</div>
+          <div class="book-author">Robert Jordan</div>
+        </div>
+        <div class="book-meta">
+          <div class="meta-item">
+            <div class="meta-label">Traductor/a</div>
+            <div class="meta-value">Dollors Gallart</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Editorial</div>
+            <div class="meta-value">Minotauro</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Año publicación</div>
+            <div class="meta-value">2019 (ed. español Minotauro)</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lectura</div>
+            <div class="meta-value">18 febrero – ¿? 2026</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Valoración</div>
+          <div class="rating">
+            <span class="star"></span>
+            <span class="star"></span>
+            <span class="star"></span>
+            <span class="star"></span>
+            <span class="star"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="book-review">
+      <div class="review-label">Opinión</div>
+      <div class="review-text">
+        <p>Sólo estoy probando jaja.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>Registro de lecturas · Actualizado febrero 2026</p>
+  </div>
+
+</div>
+
+<!-- 
+═══════════════════════════════════════════════════════════════════
+INSTRUCCIONES PARA EDITAR:
+
+1. AÑADIR UN NUEVO LIBRO:
+   - Copia todo el bloque desde LIBRO 4 hasta </div> (antes del footer)
+   - Pégalo justo antes del footer
+   - Cambia el número (LIBRO #5, etc.)
+   - Edita título, autor, metadatos y reseña
+
+2. CAMBIAR PORTADAS:
+   - Reemplaza la URL en src="..." con:
+     a) Ruta local: src="portadas/libro1.jpg" (pon las imágenes en una carpeta "portadas")
+     b) URL directa de una imagen online
+   - Mantén el tamaño 180x270 o proporción 2:3 para mejor resultado
+
+3. VALORACIÓN CON ESTRELLAS:
+   - class="star full" = estrella llena
+   - class="star half" = media estrella  
+   - class="star" = estrella vacía
+
+4. COLORES:
+   - Ve a la sección :root {} al principio
+   - Cambia los valores hexadecimales:
+     --accent: #2d5c3f (verde bosque, para títulos)
+     --bg: #d4e5d4 (fondo matcha)
+     --text: #1f3329 (texto principal)
+
+5. EXPORTAR A PDF:
+   - Abre el HTML en tu navegador
+   - Ctrl+P o Cmd+P (imprimir)
+   - Selecciona "Guardar como PDF"
+   - Ajusta márgenes si es necesario
+
+6. COMPARTIR EN REDES SOCIALES:
+   - Para X/Twitter: haz capturas de pantalla de cada libro individual
+   - Para web: sube el HTML a GitHub Pages, Netlify o cualquier hosting
+   - Alternativa: usa https://htmlpreview.github.io/ pegando la URL de tu HTML en GitHub
+
+═══════════════════════════════════════════════════════════════════
+-->
+
+<script>
+// Sistema de filtros combinados (valoración + autor + género)
+const filterButtons = document.querySelectorAll('.filter-btn');
+const books = document.querySelectorAll('.book-entry');
+const countSpan = document.getElementById('count');
+const totalBooks = books.length;
+
+// Estado actual de los filtros
+let activeFilters = {
+  rating: 'all',
+  author: 'all',
+  genre: 'all'
+};
+
+// Función para aplicar todos los filtros
+function applyFilters() {
+  let visibleCount = 0;
+  
+  books.forEach(book => {
+    const bookRating = book.getAttribute('data-rating');
+    const bookAuthor = book.getAttribute('data-author');
+    const bookGenre = book.getAttribute('data-genre');
+    
+    // Comprobar cada filtro
+    const matchesRating = activeFilters.rating === 'all' || bookRating === activeFilters.rating;
+    const matchesAuthor = activeFilters.author === 'all' || bookAuthor === activeFilters.author;
+    const matchesGenre = activeFilters.genre === 'all' || bookGenre === activeFilters.genre;
+    
+    // El libro se muestra solo si cumple TODOS los filtros activos
+    if (matchesRating && matchesAuthor && matchesGenre) {
+      book.classList.remove('hidden');
+      visibleCount++;
+    } else {
+      book.classList.add('hidden');
+    }
+  });
+  
+  // Actualizar contador
+  countSpan.textContent = visibleCount;
+}
+
+// Añadir eventos a los botones
+filterButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const filterType = button.getAttribute('data-filter');
+    const filterValue = button.getAttribute('data-value');
+    
+    // Desactivar otros botones del mismo tipo
+    filterButtons.forEach(btn => {
+      if (btn.getAttribute('data-filter') === filterType) {
+        btn.classList.remove('active');
+      }
+    });
+    
+    // Activar el botón clickeado
+    button.classList.add('active');
+    
+    // Actualizar el estado del filtro
+    activeFilters[filterType] = filterValue;
+    
+    // Aplicar todos los filtros
+    applyFilters();
+  });
+});
+</script>
+
+</body>
+</html>
